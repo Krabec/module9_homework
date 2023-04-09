@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Document</title>
+</head>
+    <body>
+        <main>
+            <div id="frame">
+              <h1>Введите номер страцы и поличество добавляемых картинок </h1>
+              <input id="input_number" type="text" placeholder="Введите номер страницы" />
+              <input id="input_limit" type="text" placeholder="Введите лимит" />
+              <button type="submit" id="button">Запрос</button>
+              <div id="output"></div>
+            </div>
+        </main>
+    </body>
+    <script>
+        const output = document.querySelector("#output");
+
+        for(let i = 0; i < localStorage.length; i += 1) {
+            output.innerHTML += localStorage.getItem(`key${i}`);
+        }
+       
+       function pageLoaded() {
+            const inputNumber = document.querySelector("#input_number");
+            const inputLimit = document.querySelector("#input_limit");
+            const btn = document.querySelector("#button");
+            
+                    
+            btn.addEventListener("click", sendRequest);
+        
+            function sendRequest() {
+                if (validateInput()) {
+                    localStorage.clear()
+                    output.innerHTML = '';
+                    
+                    let xhr = new XMLHttpRequest();
+                    xhr.open("GET", `https://picsum.photos/v2/list?page=${inputNumber.value}&limit=${inputLimit.value}`);
+                    xhr.send();
+        
+                    xhr.onerror = function() {
+                        writeOutput('<p> При отправке запроса произошла ошибка </p>');
+                }
+                
+                xhr.onload = function() {
+                    if (xhr.status == 200) {
+                    let data = JSON.parse(xhr.response);
+                    for (let i = 0; i < inputLimit.value; i += 1) {
+                        writeOutput(`<img height=200px style="margin-left: 10px" src="${data[i].download_url}">`);
+                        localStorage.setItem(`key${i}`, `<img height=200px style="margin-left: 10px" src="${data[i].download_url}">`);
+                    }
+                    }
+                }
+                }
+            }
+            
+            function writeOutput(elem) {
+                output.innerHTML += elem;
+            }
+                    
+            function validateInput() {
+                let validated = true;
+                if (inputNumber.value === '' || isNaN(+inputNumber.value) || inputLimit.value === '' || isNaN(+inputLimit.value) || ((inputNumber.value < 1 || inputNumber.value > 10)&&(inputLimit.value < 1 || inputLimit.value > 10))) {
+                    writeOutput(`<p> Номер страницы и лимит вне диапазона от 1 до 10 </p>`);
+                    validated = false;
+                } else if (inputNumber.value < 1 || inputNumber.value > 10) {
+                    writeOutput(`<p> Номер страницы вне диапазона от 1 до 10 </p>`);
+                    validated = false;
+                } else if (inputLimit.value < 1 || inputLimit.value > 10) {
+                    writeOutput(`<p> Лимит вне диапазона от 1 до 10 </p>`);
+                    validated = false;
+                }
+                return validated;
+            }
+            }
+            
+            document.addEventListener("DOMContentLoaded", pageLoaded);
+    </script>  
+</html>

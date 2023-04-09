@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Document</title>
+</head>
+    <body>
+        <main>
+            <div id="frame">
+              <h1>Введите размер картинки</h1>
+              <input id="input_width" type="text" placeholder="Введите ширину картинки" />
+              <input id="input_height" type="text" placeholder="Введите высоту картинки" />
+              <button type="submit" id="button">Ввести!</button>
+              <div id="output"></div>
+            </div>
+        </main>
+    </body>
+    <script>
+       
+       function pageLoaded() {
+            const inputWidth = document.querySelector("#input_width");
+            const inputHeight = document.querySelector("#input_height");
+            const btn = document.querySelector("#button");
+            const output = document.querySelector("#output");
+                    
+            btn.addEventListener("click", sendRequest);
+                            
+            function sendRequest() {
+                if (validateInput()) {
+                fetch(`https://picsum.photos/${inputWidth.value}/${inputHeight.value}`)
+                .then(data => {
+                    writeOutput(formatOutput(data));
+                })
+                }
+            }
+            
+            function formatOutput(data) {
+                let output = `
+                <img src="https://picsum.photos/${inputWidth.value}/${inputHeight.value}" />
+                `
+                return output;
+            }
+            
+            function writeOutput(message) {
+                output.innerHTML = message;
+            }
+                    
+            function validateInput() {
+                let validated = true;
+                if (inputWidth.value === '' || isNaN(+inputWidth.value) || inputHeight.value === '' || isNaN(+inputHeight.value) || inputWidth.value < 100 || inputWidth.value > 300 || inputHeight.value < 100 || inputHeight.value > 300) {
+                writeOutput(`<p> Одно из чисел вне диапазона от 100 до 300 </p>`);
+                validated = false;
+                }
+                return validated;
+            }
+            }
+
+            document.addEventListener("DOMContentLoaded", pageLoaded);
+    </script>  
+</html>
